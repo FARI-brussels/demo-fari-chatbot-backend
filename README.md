@@ -7,6 +7,30 @@ A simple Flask application that can initiate a conversation and process messages
 First, clone the repository to your local machine:
 
 ```
-git clone https://github.com/your_username/flask-chatbot.git
-cd flask-chatbot
+git clone https://github.com/FARI-brussels/demo-fari-chatbot-backend.git
+cd demo-fari-chatbot-backend
+```
+
+Then, install the dependencies : 
+```
+pip install -r requirements.txt
+```
+You can now run the server:
+```
+python -m backend
+```
+The server should be running at http://localhost:5000
+
+## API endpoints
+GET /initiate
+Initiates a new conversation and returns a unique conversation ID.
+
+Response
+
+200 OK on success
+```
+{
+  "conversation_id": "550e8400-e29b-41d4-a716-446655440000"
+}
+
 ```
