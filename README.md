@@ -22,15 +22,42 @@ python -m backend
 The server should be running at http://localhost:5000
 
 ## API endpoints
-GET /initiate
+
+### GET /initiate
 Initiates a new conversation and returns a unique conversation ID.
+
+url : http://localhost:5000/initiate
 
 Response
 
 200 OK on success
-```
+```json
 {
   "conversation_id": "550e8400-e29b-41d4-a716-446655440000"
+}
+
+```
+
+### POST /chatbot
+Initiates a new conversation and returns a unique conversation ID.
+
+#### request
+url : http://localhost:5000/chatbot
+
+input data : 
+```json data
+{
+  "conversation_id": "550e8400-e29b-41d4-a716-446655440000",
+  "message": "Hello, chatbot!"
+}
+```
+Response
+
+200 OK on success
+```json
+{
+    "context": [],
+    "message": "Hello user."
 }
 
 ```

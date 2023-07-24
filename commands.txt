@@ -1,0 +1,2 @@
+curl -X GET http://localhost:5000/initiate
+curl -X POST -H "Content-Type: application/json" -d '{"message": "what is the title of the article?","conversation_id": "f3f6903b-465b-438e-8b5b-aff0060a36f6"}' http://localhost:5000/chatbot
