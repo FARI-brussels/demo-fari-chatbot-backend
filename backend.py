@@ -58,7 +58,6 @@ def initiate():
 
     # Get the PDF URL from the URL parameters
     pdf_url = request.args.get('pdf_url')
-    print(pdf_url)
 
     if pdf_url:
         pdf_text= download_and_extract(pdf_url)
@@ -88,17 +87,23 @@ def chatbot():
     CONVERSATIONS[conversation_id] += [{"role": "user", "content": f"{user_message}"}]
     # given the most recent context (4096 characters)
     # continue the text up to 2048 tokens ~ 8192 charaters
-    completion = openai.ChatCompletion.create(
-        model='gpt-3.5-turbo-16k',
-        messages=CONVERSATIONS[conversation_id],
-        max_tokens = 8094,
-        temperature = 0.4, # Lower values make responses more deterministic
-    )
-    # append response to context
-    response = completion.choices[0].message
-    
+    try:
+        response = get_gpt_response(CONVERSATIONS[conversation_id]) 
+    except openai.error.InvalidRequestError:
+        CONVERSATIONS[conversation_id] = [CONVERSATIONS[conversation_id][0]] + [{"role": "user", "content": f"{user_message}"}]
+        response = get_gpt_response(CONVERSATIONS[conversation_id])
     CONVERSATIONS[conversation_id] += [response]
     return jsonify({'message':response.content, "context":CONVERSATIONS[conversation_id]})
+
+def get_gpt_response(message):
+    completion = openai.ChatCompletion.create(
+            model='gpt-3.5-turbo-16k',
+            messages=message,
+            max_tokens = 8094,
+            temperature = 0.2, # Lower values make responses more deterministic
+        )
+    response = completion.choices[0].message
+    return response
 
 # Run the app
 if __name__ == '__main__':
