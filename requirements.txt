@@ -2,3 +2,4 @@ openai
 flask
 pypdf
 tiktoken
+flask-cors

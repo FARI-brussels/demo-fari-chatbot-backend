@@ -2,10 +2,10 @@ import openai
 import json
 from flask import Flask, request, jsonify
 import uuid
-import os
 import tiktoken
 import requests
 from pypdf import PdfReader
+from flask_cors import CORS
 
 
 with open("./keys.json", 'r') as j:
@@ -51,6 +51,7 @@ def trim_text(text: str, encoding) -> int:
 
 # Initialize the Flask application
 app = Flask(__name__)
+CORS(app)
 @app.route('/initiate', methods=['GET'])
 def initiate():
     # Generate a unique UUID for the new conversation
