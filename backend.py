@@ -6,7 +6,7 @@ import tiktoken
 import requests
 from pypdf import PdfReader
 from flask_cors import CORS
-
+import datetime
 
 with open("./keys.json", 'r') as j:
     keys = json.loads(j.read())
@@ -16,6 +16,7 @@ ENCODING = tiktoken.encoding_for_model("gpt-3.5-turbo")
 MAX_TOKENS = 8000
 url = 'https://arxiv.org/pdf/2307.03027.pdf'
 CONVERSATIONS = {}
+TIMESTAMPS = {}
 
 
 def download_and_extract(pdf_url):
@@ -63,10 +64,19 @@ def initiate():
     if pdf_url:
         pdf_text= download_and_extract(pdf_url)
         CONVERSATIONS[conversation_id] = [{"role": "system", "content": f"You are an helpful scientific assistant answering question about this article : \n {pdf_text}"}]
-        
     else:
         CONVERSATIONS[conversation_id] = [{"role": "system", "content": "You are a helpful assistant."}]
+    TIMESTAMPS[conversation_id] = datetime.datetime.now()
+    
+    # Delete conversations older than 10 minutes
+    current_time = datetime.datetime.now()
+    conv_to_delete = [cid for cid, timestamp in TIMESTAMPS.items() if (current_time - timestamp).total_seconds() > 600]  # 600 seconds = 10 minutes
 
+    for cid in conv_to_delete:
+        del CONVERSATIONS[cid]
+        del TIMESTAMPS[cid]
+    print(CONVERSATIONS)
+    print(TIMESTAMPS)
     # Return the conversation ID to the client
     return jsonify({'conversation_id': conversation_id})
 
