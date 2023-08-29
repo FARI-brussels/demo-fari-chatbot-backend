@@ -28,6 +28,10 @@ Initiates a new conversation and returns a unique conversation ID.
 
 url : http://localhost:5000/initiate
 
+query parameters : pdf_url (optional)
+
+example : http://localhost:5000/initiate?pdf_url=http://example.com/mypdf.pdf
+
 Response
 
 200 OK on success
