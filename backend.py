@@ -14,7 +14,6 @@ with open("./keys.json", 'r') as j:
 # Import required modules
 ENCODING = tiktoken.encoding_for_model("gpt-3.5-turbo")
 MAX_TOKENS = 8000
-url = 'https://arxiv.org/pdf/2307.03027.pdf'
 CONVERSATIONS = {}
 TIMESTAMPS = {}
 
@@ -32,8 +31,8 @@ def download_and_extract(pdf_url):
         text = ''
         for page in reader.pages:
             text += page.extract_text()
-    text = trim_text(text, ENCODING)
-
+    if len(ENCODING.encode(text))>MAX_TOKENS:
+        text = trim_text(text, ENCODING)
     return text
 
  
@@ -62,8 +61,12 @@ def initiate():
     pdf_url = request.args.get('pdf_url')
 
     if pdf_url:
-        pdf_text= download_and_extract(pdf_url)
-        CONVERSATIONS[conversation_id] = [{"role": "system", "content": f"You are an helpful assistant answering question about this pdf : \n {pdf_text}"}]
+        try:
+            pdf_text= download_and_extract(pdf_url)
+            CONVERSATIONS[conversation_id] = [{"role": "system", "content": f"You are an helpful assistant answering question about this pdf : \n {pdf_text}"}]
+        except requests.exceptions.MissingSchema:
+            return "Invalid pdf url", 400
+
     else:
         CONVERSATIONS[conversation_id] = [{"role": "system", "content": "You are a helpful assistant."}]
     TIMESTAMPS[conversation_id] = datetime.datetime.now()
@@ -75,8 +78,7 @@ def initiate():
     for cid in conv_to_delete:
         del CONVERSATIONS[cid]
         del TIMESTAMPS[cid]
-    print(CONVERSATIONS)
-    print(TIMESTAMPS)
+
     # Return the conversation ID to the client
     return jsonify({'conversation_id': conversation_id})
 
