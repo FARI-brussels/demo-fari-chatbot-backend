@@ -63,7 +63,7 @@ def initiate():
 
     if pdf_url:
         pdf_text= download_and_extract(pdf_url)
-        CONVERSATIONS[conversation_id] = [{"role": "system", "content": f"You are an helpful scientific assistant answering question about this article : \n {pdf_text}"}]
+        CONVERSATIONS[conversation_id] = [{"role": "system", "content": f"You are an helpful assistant answering question about this pdf : \n {pdf_text}"}]
     else:
         CONVERSATIONS[conversation_id] = [{"role": "system", "content": "You are a helpful assistant."}]
     TIMESTAMPS[conversation_id] = datetime.datetime.now()
