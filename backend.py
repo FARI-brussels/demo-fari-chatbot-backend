@@ -1,4 +1,4 @@
-import openai
+from openai import OpenAI
 import json
 from flask import Flask, request, jsonify
 import uuid
@@ -10,12 +10,17 @@ import datetime
 
 with open("./keys.json", 'r') as j:
     keys = json.loads(j.read())
-    openai.api_key = keys["OPENAI_API_KEY"]
+
 # Import required modules
 ENCODING = tiktoken.encoding_for_model("gpt-3.5-turbo")
 MAX_TOKENS = 8000
 CONVERSATIONS = {}
 TIMESTAMPS = {}
+
+client = OpenAI(
+        # This is the default and can be omitted
+        api_key=keys["OPENAI_API_KEY"],
+    )
 
 
 def download_and_extract(pdf_url):
@@ -102,21 +107,22 @@ def chatbot():
     # continue the text up to 2048 tokens ~ 8192 charaters
     try:
         response = get_gpt_response(CONVERSATIONS[conversation_id]) 
-    except openai.error.InvalidRequestError:
+    except Exception as e:
+        print(e)
         CONVERSATIONS[conversation_id] = [CONVERSATIONS[conversation_id][0]] + [{"role": "user", "content": f"{user_message}"}]
         response = get_gpt_response(CONVERSATIONS[conversation_id])
     CONVERSATIONS[conversation_id] += [response]
-    return jsonify({'message':response.content, "context":CONVERSATIONS[conversation_id]})
+    return jsonify({'message':response, "context":CONVERSATIONS[conversation_id]})
 
 def get_gpt_response(message):
-    completion = openai.ChatCompletion.create(
-            model='gpt-3.5-turbo-16k',
-            messages=message,
-            max_tokens = 8094,
-            temperature = 0.2, # Lower values make responses more deterministic
-        )
+
+    
+
+    completion = client.chat.completions.create(
+        messages=message,
+        model="gpt-4-turbo-preview",)
     response = completion.choices[0].message
-    return response
+    return response.content
 
 # Run the app
 if __name__ == '__main__':
